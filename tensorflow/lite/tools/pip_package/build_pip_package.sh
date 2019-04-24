@@ -29,14 +29,22 @@ rm -rf $BUILD_ROOT
 mkdir -p $BUILD_ROOT/tflite_runtime/lite
 mkdir -p $BUILD_ROOT/tflite_runtime/lite/python
 
+ver=$(python -V 2>&1 | sed 's/.* \([0-9]\).\([0-9]\).*/\1\2/')
+
 # Build an importable module tree
 cat > $BUILD_ROOT/tflite_runtime/__init__.py <<EOF;
 import tflite_runtime.lite.interpreter
 EOF
 
+if [ "$ver" -gt "27" ]; then
+cat > $BUILD_ROOT/tflite_runtime/lite/__init__.py <<EOF;
+from .interpreter import Interpreter as Interpreter
+EOF
+else
 cat > $BUILD_ROOT/tflite_runtime/lite/__init__.py <<EOF;
 from interpreter import Interpreter as Interpreter
 EOF
+fi
 
 cat > $BUILD_ROOT/tflite_runtime/lite/python/__init__.py <<EOF;
 # Python module for TensorFlow Lite
